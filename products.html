@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Bootstrap theme -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Inventory</title>
+    <script>
+      $(document).ready(function() {
+        // Add item button click event
+        $("#add-item-button").click(function() {
+          $("#add-item-modal").modal(); // Show the add item modal
+        });
+
+        // Save item button click event
+        $("#save-item-button").click(function() {
+          var itemName = $("#new-item-name").val();
+          var quantity = $("#new-quantity").val();
+          var price = $("#new-price").val();
+
+          // Create a new row for the item
+          var newRow = $("<tr>").append(
+            $("<td>").text(itemName),
+            $("<td>").text(quantity),
+            $("<td>").text(price),
+            $("<td>").html('<button class="btn btn-info edit-button">Edit</button>'),
+            $("<td>").html('<button class="btn btn-danger delete-button">Delete</button>')
+          );
+
+          // Append the new row to the table body
+          $("#inventory-table tbody").append(newRow);
+
+          // Hide the add item modal
+          $("#add-item-modal").modal("hide");
+
+          // Clear the input fields
+          $("#new-item-name").val("");
+          $("#new-quantity").val("");
+          $("#new-price").val("");
+        });
+
+        $("#search-button").click(function() {
+          var searchValue = $("#search-input").val().toUpperCase();
+          var table = $("#inventory-table");
+          var rows = table.find("tbody tr");
+
+          rows.hide();
+          rows.each(function() {
+            var rowText = $(this).text().toUpperCase();
+            if (rowText.indexOf(searchValue) !== -1) {
+              $(this).show();
+            }
+          });
+        });
+
+        $("#reset-button").click(function() {
+          $("#search-input").val("");
+          var table = $("#inventory-table");
+          var rows = table.find("tbody tr");
+          rows.show();
+        });
+
+        $(document).on("click", ".edit-button", function() {
+          var row = $(this).closest("tr");
+          var itemName = row.find("td:eq(0)").text();
+          var quantity = row.find("td:eq(1)").text();
+          var price = row.find("td:eq(2)").text();
+
+          $("#edit-item-name").val(itemName);
+          $("#edit-quantity").val(quantity);
+          $("#edit-price").val(price);
+
+          $("#edit-modal").modal();
+          $("#edit-modal").data("row", row); // Store the row for future use
+        });
+
+        $(document).on("click", ".save-changes-button", function() {
+          var itemName = $("#edit-item-name").val();
+          var quantity = $("#edit-quantity").val();
+          var price = $("#edit-price").val();
+
+          var row = $("#edit-modal").data("row");
+          row.find("td:eq(0)").text(itemName);
+          row.find("td:eq(1)").text(quantity);
+          row.find("td:eq(2)").text(price);
+
+          $("#edit-modal").modal("hide");
+        });
+
+        $(document).on("click",".delete-button", function() {
+var row = $(this).closest("tr");
+row.remove();
+});
+});
+</script>
+
+  </head>
+  <body>
+
+    <div class="navbar navbar-default">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="index.html" id="logout">Log Out</a></li>
+        </ul>
+      </div>
+    </div>
+    <br>
+
+    <div class="container">
+      <h1>Inventory</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="input-group">
+            <input
+              type="text"
+              id="search-input"
+              class="form-control"
+              placeholder="Search by item name, quantity, or price"
+            />
+            <span class="input-group-btn">
+              <button id="search-button" class="btn btn-primary" type="button">
+                Search
+              </button>
+              <button id="reset-button" class="btn btn-secondary" type="button">
+                Reset
+              </button>
+            </span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <button id="add-item-button" class="btn btn-success pull-right">
+            Add Item
+          </button>
+        </div>
+      </div>
+      <table id="inventory-table" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Existing items will be dynamically added here -->
+        </tbody>
+      </table>
+    </div>
+<!-- Add Item Modal -->
+<div id="add-item-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add Item</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="new-item-name">Item Name:</label>
+          <input type="text" class="form-control" id="new-item-name" required />
+        </div>
+        <div class="form-group">
+          <label for="new-quantity">Quantity:</label>
+          <input type="number" class="form-control" id="new-quantity" required />
+        </div>
+        <div class="form-group">
+          <label for="new-price">Price:</label>
+          <input type="number" class="form-control" id="new-price" step="499" required />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="save-item-button" type="button" class="btn btn-primary">
+          Save
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Item Modal -->
+<div id="edit-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Edit Item</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="edit-item-name">Item Name:</label>
+          <input type="text" class="form-control" id="edit-item-name" required />
+</div>
+<div class="form-group">
+<label for="edit-quantity">Quantity:</label>
+<input type="number" class="form-control" id="edit-quantity" required />
+</div>
+<div class="form-group">
+<label for="edit-price">Price:</label>
+<input type="number" class="form-control" id="edit-price" step="499" required />
+</div>
+</div>
+<div class="modal-footer">
+<button id="update-item-button" type="button" class="btn btn-primary">
+Update
+</button>
+<button type="button" class="btn btn-default" data-dismiss="modal">
+Cancel
+</button>
+</div>
+</div>
+</div>
+</div>
+    <script>
+  // Sample Products
+  var inventoryData = [
+  { id: 1, name: "(Nintendo Switch) Mario Kart 8 Deluxe", quantity: 6, price: 2099   },
+  { id: 2, name: "(Nintendo Switch) The Legend of Zelda: Tears of the Kingdom", quantity: 1, price: 2399 },
+  { id: 3, name: "(Nintendo Switch) Monster Hunter Rise", quantity: 3, price: 2199 },
+  { id: 4, name: "(Nintendo Switch) Animal Crossing", quantity: 7, price: 1899 },
+  { id: 5, name: "(Nintendo Switch) Shin Megami Tensei 5", quantity: 3, price: 1599 },
+  { id: 6, name: "(PS4) Overcooked 2", quantity: 9, price: 1499 },
+  { id: 7, name: "(PS4) Persona 5 Royal", quantity: 2, price: 2199 },
+  { id: 8, name: "(PS4) Grand Theft Auto V", quantity: 5, price: 1399 },
+  { id: 9, name: "(PS4) Red Dead Redemption", quantity: 8, price: 1299 },
+  { id: 10, name: "(PS4) The Last of Us", quantity: 1, price: 1499 },
+
+];
+
+  // Function to populate the table with data
+  function populateTable() {
+    var tableBody = $("#inventory-table tbody");
+    tableBody.empty();
+
+    for (var i = 0; i < inventoryData.length; i++) {
+      var item = inventoryData[i];
+      var row = $("<tr>");
+      var nameColumn = $("<td>").text(item.name);
+      var quantityColumn = $("<td>").text(item.quantity);
+      var priceColumn = $("<td>").text("₱" + item.price.toFixed(2));
+      var editColumn = $("<td>");
+      var editButton = $(
+        '<button class="btn btn-primary edit-button" data-toggle="modal" data-target="#edit-modal">Edit</button>'
+      ).data("item-id", item.id);
+      editColumn.append(editButton);
+      var deleteColumn = $("<td>");
+      var deleteButton = $(
+        '<button class="btn btn-danger delete-button">Delete</button>'
+      ).data("item-id", item.id);
+      deleteColumn.append(deleteButton);
+
+      row.append(nameColumn);
+      row.append(quantityColumn);
+      row.append(priceColumn);
+      row.append(editColumn);
+      row.append(deleteColumn);
+      tableBody.append(row);
+    }
+  }
+
+  // Function to reset the table
+  function resetTable() {
+    inventoryData = [];
+    populateTable();
+  }
+
+  // Function to search for items
+  function searchItems(keyword) {
+    var filteredItems = inventoryData.filter(function (item) {
+      return (
+        item.name.toLowerCase().includes(keyword) ||
+        item.quantity.toString().includes(keyword) ||
+        item.price.toString().includes(keyword)
+      );
+    });
+
+    populateTable(filteredItems);
+  }
+
+  // Function to add a new item
+  function addItem(name, quantity, price) {
+    var newItem = {
+      id: inventoryData.length + 1,
+      name: name,
+      quantity: parseInt(quantity),
+      price: parseFloat(price),
+    };
+
+    inventoryData.push(newItem);
+    populateTable();
+  }
+
+  // Function to update an existing item
+  function updateItem(id, name, quantity, price) {
+    var itemIndex = inventoryData.findIndex(function (item) {
+      return item.id === id;
+    });
+
+    if (itemIndex !== -1) {
+      inventoryData[itemIndex].name = name;
+      inventoryData[itemIndex].quantity =   (quantity);
+
+inventoryData[itemIndex].price = parseFloat(price);
+populateTable();
+}
+}  // Function to delete an item
+  function deleteItem(id) {
+    var itemIndex = inventoryData.findIndex(function (item) {
+      return item.id === id;
+    });
+
+    if (itemIndex !== -1) {
+      inventoryData.splice(itemIndex, 1);
+      populateTable();
+    }
+  }
+
+  // Event listener for search button
+  $("#search-button").click(function () {
+    var keyword = $("#search-input").val().toLowerCase();
+    searchItems(keyword);
+  });
+
+  // Event listener for reset button
+  $("#reset-button").click(function () {
+    $("#search-input").val("");
+    populateTable();
+  });
+
+  // Event listener for add item button
+  $("#add-item-button").click(function () {
+    $("#add-item-modal").modal("show");
+  });
+
+  // Event listener for save item button
+  $("#save-item-button").click(function () {
+    var name = $("#new-item-name").val();
+    var quantity = $("#new-quantity").val();
+    var price = $("#new-price").val();
+
+    addItem(name, quantity, price);
+
+    $("#add-item-modal").modal("hide");
+
+    // Clear input fields
+    $("#new-item-name").val("");
+    $("#new-quantity").val("");
+    $("#new-price").val("");
+  });
+
+  // Event listener for edit buttons
+  $(document).on("click", ".edit-button", function () {
+    var itemId = $(this).data("item-id");
+    var item = inventoryData.find(function (item) {
+      return item.id === itemId;
+    });
+
+    if (item) {
+      $("#edit-item-name").val(item.name);
+      $("#edit-quantity").val(item.quantity);
+      $("#edit-price").val(item.price);
+      $("#update-item-button").data("item-id", item.id);
+      $("#edit-modal").modal("show");
+    }
+  });
+
+  // Event listener for update item button
+  $("#update-item-button").click(function () {
+    var itemId = $(this).data("item-id");
+    var name = $("#edit-item-name").val();
+    var quantity = $("#edit-quantity").val();
+    var price = $("#edit-price").val();
+
+    updateItem(itemId, name, quantity, price);
+
+    $("#edit-modal").modal("hide");
+  });
+
+  // Event listener for delete buttons
+  $(document).on("click", ".delete-button", function () {
+    var itemId = $(this).data("item-id");
+    deleteItem(itemId);
+  });
+
+  // Initialize the table
+  populateTable();
+</script>
+</body>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+  } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+    apiKey: "AIzaSyAi98Gl9PB29NHJgPUTHoNgnng7s-THS6E",
+    authDomain: "authentication-g-138d7.firebaseapp.com",
+    projectId: "authentication-g-138d7",
+    storageBucket: "authentication-g-138d7.appspot.com",
+    messagingSenderId: "733193896644",
+    appId: "1:733193896644:web:587a4cfbcfc88c9ef27f91"
+    };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth();
+  console.log(app);
+
+  //----- Login code start
+  document.getElementById("login").addEventListener("click", function () {
+    var email = document.getElementById("login_email").value;
+    var password = document.getElementById("login_password").value;
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        alert(user.email + " Login successfully!!!");
+        document.getElementById("logout").style.display = "block";
+
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorMessage);
+        alert(errorMessage);
+      });
+  });
+  //----- End
+
+  //----- Logout code start
+  document.getElementById("logout").addEventListener("click", function () {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        console.log("Sign-out successful.");
+        alert("Sign-out successful.");
+        document.getElementById("logout").style.display = "none";
+      })
+      .catch((error) => {
+        // An error happened.
+        console.log("An error happened.");
+      });
+  });
+  //----- End
+</script>
+</html>
